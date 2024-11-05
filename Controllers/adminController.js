@@ -1,10 +1,10 @@
 const admin= require('../Models/adminSchema') 
 const jwt=require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // admin register
 exports.registerAdmin  = async (req, res) => {
-  const { username, password } = req.body;
-  
+  const { username, password } = req.body; 
   try {
       // Check if the admin username already exists
       const existingAdmin = await admin.findOne({ username });
@@ -21,11 +21,14 @@ exports.registerAdmin  = async (req, res) => {
 
       res.status(201).json({ message: 'Admin registered successfully' });
   } catch (error) {
+    console.log(error);
+    
       res.status(500).json({ message: 'Server error' });
   }
 };
 
 exports.adminLogin = async (req, res) => {
+ 
   try {
       const { username, password } = req.body;
       let user = await admin.findOne({ username });
@@ -33,19 +36,15 @@ exports.adminLogin = async (req, res) => {
           return res.status(401).json({ msg: 'incorrect username' });
       }
       const isCorrect = await bcrypt.compare(password, user.password);
-
       if (!isCorrect) {
           return res.status(401).json({ msg: 'incorrect password' });
       }
-
       const payload = {
           id: user._id,
       };
-
       const signOptions = {
           expiresIn: "23h",
       }
-
       const token = jwt.sign(
           payload,
           process.env.jwt_secret,

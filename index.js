@@ -1,10 +1,16 @@
+
 require("dotenv").config();
+
 const express = require("express");
+
 const cors = require("cors");
+
 const adminRouter = require("./Routers/adminRouter");
+
 const userRouter = require("./Routers/userRouter");
 
 const bodyParser = require("body-parser");
+
 
 const wmaServer = express();
 require("./DB/connection");
@@ -14,7 +20,7 @@ wmaServer.use(bodyParser.json({ limit: "50mb" }));
 wmaServer.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 wmaServer.use(cors());
-wmaServer.use(express.json());
+wmaServer.use(express.json());  
 wmaServer.use("/AdminRouter",adminRouter);
 // wmaServer.use("/userRouter",userRouter);
 wmaServer.use("/uploads",express.static("./uploads"))  //used for uploading content
