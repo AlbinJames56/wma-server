@@ -20,4 +20,7 @@ router.get("/getEvents",adminController.getEvents)
 // updateEvent
 router.put("/updateEvent/:eid",jwtMiddleware,multerConfig.single('eventPoster'),adminController.updateEvent)
 
+// delete event
+router.delete("/deleteEvent/:eid",jwtMiddleware,adminController.deleteEvent)
+
 module.exports=router

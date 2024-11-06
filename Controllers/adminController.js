@@ -152,3 +152,20 @@ exports.updateEvent = async (req, res) => {
     res.status(401).json(err);
   }
 };
+
+// delete Event
+exports.deleteEvent = async(req,res)=>{
+  const { eid } = req.params;
+   console.log("inside delete",eid);
+  try{
+    const deleteData= await events.findByIdAndDelete(eid);
+    // Check if the event was found and deleted
+    if (!deleteData) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    res.status(200).json(deleteData);
+  }catch(err){
+    console.log(err);
+    res.status(401).json(err)
+  }
+}
