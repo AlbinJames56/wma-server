@@ -2,34 +2,34 @@ const mongoose=require('mongoose');
 const eventSchema=new mongoose.Schema({
     title:{
         type:String,
-        require:true
+        required:true
     },
     description:{
         type:String,
-        require:true
+        required:true
     },
     event_time:{
         type:String,
-        require:true
+        required:true
     },
     event_date:{
-        type:String,
-        require:true
+        type:Date,
+        required:true
     },
     event_location_url:{
         type:String,
     },
     event_location:{
         type:String,
-        require:true
+        required:true
     },
     state:{
         type:String,
-        require:true
+        required:true
     },
     country:{
         type:String,
-        require:true
+        required:true
     },
     tickets:{
         type:Array,
@@ -37,15 +37,17 @@ const eventSchema=new mongoose.Schema({
     },
     terms:{
         type:String,
-        require:true
+        required:true
     },
     eventPoster:{
         type:String,
-        require:true
+        required: function () {
+            return this.isNew; // Only required if the document is new
+          }
     },
     regOpen:{
         type:String,
-        require:true
+        required:true
     } 
 })
 eventSchema.index({ title: 1, event_time: 1 }, { unique: true });

@@ -4,9 +4,7 @@ const router=express.Router()
 const multerConfig=require('../Middlewares/multerMiddleware')
 const jwtMiddleware=require('../Middlewares/jwtMiddleware') 
  
-router.get('/test', (req, res) => {
-    res.status(200).send("Test route in adminRouter is working");
-});
+ 
 // temporary router to create an admin
 router.post('/register',adminController.registerAdmin)
 
@@ -14,6 +12,12 @@ router.post('/register',adminController.registerAdmin)
 router.post('/adminLogin',adminController.adminLogin)
 
 // addEvent
-router.post('/addEvents',multerConfig.single('eventPoster'),adminController.addEvents)
+router.post('/addEvents',jwtMiddleware,multerConfig.single('eventPoster'),adminController.addEvents)
+
+//getEvent
+router.get("/getEvents",adminController.getEvents)
+
+// updateEvent
+router.put("/updateEvent/:eid",jwtMiddleware,multerConfig.single('eventPoster'),adminController.updateEvent)
 
 module.exports=router

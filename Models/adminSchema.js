@@ -2,11 +2,11 @@ const mongoose=require('mongoose');
 const adminSchema=new mongoose.Schema({
     username:{
         type:String,
-        require:true
+        required:true
     },
     password:{
         type:String,
-        require:true
+        required:true
     },}) 
     const admin=mongoose.model("admin",adminSchema);
     module.exports=admin;
