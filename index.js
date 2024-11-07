@@ -22,8 +22,8 @@ wmaServer.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 wmaServer.use(cors());
 wmaServer.use(express.json());  
 wmaServer.use("/AdminRouter",adminRouter);
-// wmaServer.use("/userRouter",userRouter);
-wmaServer.use("/uploads",express.static("./uploads"))  //used for uploading content
+wmaServer.use("/UserRouter",userRouter);
+wmaServer.use("/uploads",express.static("./uploads/"))  //used for uploading content
 
 const PORT = 3000;
 wmaServer.listen(PORT, () => {

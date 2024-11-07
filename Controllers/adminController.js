@@ -169,3 +169,4 @@ exports.deleteEvent = async(req,res)=>{
     res.status(401).json(err)
   }
 }
+
