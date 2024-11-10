@@ -3,11 +3,13 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const qr = require("qrcode");
 const HandleTicketGeneration = require("./ticketController");
+const BookedTickets = require("../Models/bookedTickets");
 const razorpay = new Razorpay({
   key_id: "rzp_test_NNSjPPGtQUisCc",
   key_secret: "a17aBmQRsYooxW8EEElNgkcL",
 });
 
+ 
 // Fetch events (existing function)
 exports.fetchEvents = async (req, res) => {
   try {
@@ -43,7 +45,6 @@ exports.createRazorpayOrder = async (req, res) => {
 
 // Verify Razorpay Payment
 exports.verifyRazorpayPayment = async (req, res) => {
-  // console.log("inside verify", req.body);
   const {
     payment_id,
     order_id,
@@ -56,27 +57,21 @@ exports.verifyRazorpayPayment = async (req, res) => {
   } = req.body;
 
   try {
+    // Verify Razorpay signature
     const shasum = crypto.createHmac("sha256", "a17aBmQRsYooxW8EEElNgkcL");
     shasum.update(order_id + "|" + payment_id);
     const digest = shasum.digest("hex");
-    // console.log("digest",digest);
-    // console.log("signature",signature);
 
     if (digest === signature) {
-      // Payment is verified, you can perform further actions like storing payment details in the DB
       // Fetch event details
       const eventDetails = await events.findById(eventId).lean();
-      //   console.log("event", eventDetails.tickets);
+      if (!eventDetails) return res.status(404).json({ error: "Event not found" });
 
-      if (!eventDetails)
-        return res.status(404).json({ error: "Event not found" });
-
-      // Find the ticket type matching `ticketType`
+      // Find the selected ticket type and prepare pricing information
       const selectedTicketType = eventDetails.tickets.find(
         (ticket) => ticket.name === ticketType
       );
 
-      // Extract pricing information based on the `ticketCount` object
       const pricing = {};
       if (selectedTicketType) {
         Object.keys(ticketCount).forEach((category) => {
@@ -92,6 +87,7 @@ exports.verifyRazorpayPayment = async (req, res) => {
       // Prepare ticket data
       const ticketData = {
         regId: `${new Date().getTime()}`, // Unique registration ID
+        eventId,
         eventName: eventDetails.title,
         location: `${eventDetails.event_location}, ${eventDetails.state}, ${eventDetails.country}`,
         when: `${eventDetails.event_date}, ${eventDetails.event_time}`,
@@ -101,29 +97,31 @@ exports.verifyRazorpayPayment = async (req, res) => {
         ticketCount,
         pricing,
         terms: eventDetails.terms,
+        paymentId: payment_id,
+        orderId: order_id,
+        signature,
       };
-      // console.log("ticket", ticketData);
-      // Generate QR code and create the ticket PDF
-      qr.toDataURL(ticketData.regId, { errorCorrectionLevel: "H" })
-        .then(async (qrCodeData) => {
-          ticketData.qrCodeData = qrCodeData;
-          await HandleTicketGeneration(ticketData); // Generates ticket PDF and sends email
-        })
-        .catch((error) => {
-          console.error("Error generating QR code:", error);
-          HandleTicketGeneration(ticketData);
-        });
+
+      // Generate QR code
+      const qrCodeData = await qr.toDataURL(ticketData.regId, { errorCorrectionLevel: "H" });
+      ticketData.qrCodeData = qrCodeData;
+
+      // Save ticket data in the database (bookedTickets collection)
+      const newBookedTicket = new BookedTickets(ticketData);
+      await newBookedTicket.save();
+
+      // Generate ticket PDF and send email (assuming HandleTicketGeneration does this)
+      await HandleTicketGeneration(ticketData);
 
       res.status(200).json({
         status: "success",
         message: "Payment verified and ticket sent",
       });
     } else {
-      res
-        .status(400)
-        .json({ status: "failed", message: "Payment verification failed" });
+      res.status(400).json({ status: "failed", message: "Payment verification failed" });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in payment verification:", error);
+    res.status(500).json({ error: "An error occurred during payment verification" });
   }
 };

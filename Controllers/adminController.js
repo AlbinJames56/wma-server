@@ -1,7 +1,10 @@
 const admin = require("../Models/adminSchema");
 const events = require("../Models/eventSchema");
+const bookedTicketSchema=require("../Models/bookedTickets")
+const committeeMembers = require("../Models/committee"); 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
 
 // admin register
 exports.registerAdmin = async (req, res) => {
@@ -100,7 +103,7 @@ exports.addEvents = async (req, res) => {
 
 // getEvents
 exports.getEvents = async (req, res) => {
-  console.log("inside getEvents");
+  // console.log("inside getEvents");
   try {
     const allEvents = await events.find();
     res.status(200).json(allEvents);
@@ -169,5 +172,54 @@ exports.deleteEvent = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(401).json(err);
+  }
+};
+
+// getBookedTickets
+exports.getBookedTickets=async(req,res)=>{
+  // console.log("inside getBOokedTicekts");
+  try{
+    const bookedEvents = await bookedTicketSchema.find();
+ 
+    res.status(200).json(bookedEvents);
+  }catch (err) {
+    res.status(401).json(err);
+  }
+}
+
+// addCommittee
+exports.addCommittee=async(req,res)=>{
+  console.log("inside add committee");
+  try{
+    const newCommittee=new  committeeMembers(req.body)
+    await newCommittee.save()
+    res.status(201).json(newCommittee);
+  } catch (err) {
+    console.error("Error adding committee member:", err);
+    res.status(500).json({ message: "Failed to add committee member" });
+  }
+  
+}
+
+// fetch committee 
+exports.getCommittee = async (req, res) => {
+  console.log("inside get committee");
+  try {
+    const committee = await committeeMembers.find();
+    res.status(200).json(committee);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching committee members" });
+  }
+};
+
+// delete committee member 
+exports.deleteCommitteeMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await committeeMembers.findByIdAndDelete(id);
+    res.status(200).json({ message: "Committee member deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting committee member:", error);
+    res.status(500).json({ error: "Failed to delete committee member" });
   }
 };
