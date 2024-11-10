@@ -43,7 +43,7 @@ exports.createRazorpayOrder = async (req, res) => {
 
 // Verify Razorpay Payment
 exports.verifyRazorpayPayment = async (req, res) => {
-  console.log("inside verify", req.body);
+  // console.log("inside verify", req.body);
   const {
     payment_id,
     order_id,
@@ -66,7 +66,7 @@ exports.verifyRazorpayPayment = async (req, res) => {
       // Payment is verified, you can perform further actions like storing payment details in the DB
       // Fetch event details
       const eventDetails = await events.findById(eventId).lean();
-      console.log("event", eventDetails.tickets);
+      //   console.log("event", eventDetails.tickets);
 
       if (!eventDetails)
         return res.status(404).json({ error: "Event not found" });
@@ -102,7 +102,7 @@ exports.verifyRazorpayPayment = async (req, res) => {
         pricing,
         terms: eventDetails.terms,
       };
-      console.log("ticket", ticketData);
+      // console.log("ticket", ticketData);
       // Generate QR code and create the ticket PDF
       qr.toDataURL(ticketData.regId, { errorCorrectionLevel: "H" })
         .then(async (qrCodeData) => {

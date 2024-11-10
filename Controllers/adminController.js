@@ -125,26 +125,28 @@ exports.updateEvent = async (req, res) => {
     regOpen,
   } = req.body;
   const tickets = JSON.parse(req.body.tickets);
-  const updateData={
+  const updateData = {
     title,
-        description,
-        event_time,
-        event_date,
-        event_location_url,
-        event_location,
-        state,
-        country,
-        terms,
-        regOpen,
-        tickets, 
+    description,
+    event_time,
+    event_date,
+    event_location_url,
+    event_location,
+    state,
+    country,
+    terms,
+    regOpen,
+    tickets,
+  };
+  // Conditionally add eventPoster if a new file was uploaded
+  if (req.file && req.file.filename) {
+    updateData.eventPoster = req.file.filename;
   }
- // Conditionally add eventPoster if a new file was uploaded
- if (req.file && req.file.filename) {
-  updateData.eventPoster = req.file.filename;
-}
-  const { eid } = req.params; 
+  const { eid } = req.params;
   try {
-    const updatedEvent = await events.findByIdAndUpdate(eid,updateData,{ new: true });
+    const updatedEvent = await events.findByIdAndUpdate(eid, updateData, {
+      new: true,
+    });
     await updatedEvent.save();
     res.status(200).json(updatedEvent);
   } catch (err) {
@@ -154,19 +156,18 @@ exports.updateEvent = async (req, res) => {
 };
 
 // delete Event
-exports.deleteEvent = async(req,res)=>{
+exports.deleteEvent = async (req, res) => {
   const { eid } = req.params;
-   console.log("inside delete",eid);
-  try{
-    const deleteData= await events.findByIdAndDelete(eid);
+  console.log("inside delete", eid);
+  try {
+    const deleteData = await events.findByIdAndDelete(eid);
     // Check if the event was found and deleted
     if (!deleteData) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ message: "Event not found" });
     }
     res.status(200).json(deleteData);
-  }catch(err){
+  } catch (err) {
     console.log(err);
-    res.status(401).json(err)
+    res.status(401).json(err);
   }
-}
-
+};
