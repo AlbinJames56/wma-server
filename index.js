@@ -25,7 +25,7 @@ wmaServer.use("/AdminRouter",adminRouter);
 wmaServer.use("/UserRouter",userRouter);
 wmaServer.use("/uploads",express.static("./uploads/"))  //used for uploading content
 
-const PORT = 3000;
+const PORT = 3000||process.env.PORT;
 wmaServer.listen(PORT, () => {
   console.log("Server started on port :", PORT);
 });
