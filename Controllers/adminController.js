@@ -3,7 +3,8 @@ const events = require("../Models/eventSchema");
 const bookedTicketSchema=require("../Models/bookedTickets")
 const committeeMembers = require("../Models/committee"); 
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
+
 
 
 // admin register
